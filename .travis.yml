@@ -1,0 +1,23 @@
+dist: trusty
+sudo: required
+
+language: cpp
+
+branches:
+  only:
+  - staging
+  - trying
+  - master
+
+before_install:
+- sudo apt-get --yes --no-install-recommends install snapd
+- sudo snap install lxd
+- sudo snap install snapcraft --classic
+- sudo /snap/bin/lxd waitready
+- sudo /snap/bin/lxd init --auto
+- sudo adduser $USER lxd
+- sg lxd -c '/snap/bin/lxc network create lxdbr0';
+- sg lxd -c '/snap/bin/lxc network attach-profile lxdbr0 default eth0';
+
+script:
+- sg lxd -c 'env PATH=/snap/bin:$PATH SNAPCRAFT_CONTAINER_BUILDS=1 /snap/bin/snapcraft'
